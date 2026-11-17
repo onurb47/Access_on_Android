@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BD Futsal Cam Pro</title>
+<meta name="description" content="Two-iPhone synchronised match recording for BD Futsal. Runs in Safari, no install needed.">
+<meta name="theme-color" content="#0b0f12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BD Cam">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/app.css">
+<script src="vendor/peerjs-1.5.5.min.js" defer></script>
+<script src="vendor/qrcode-generator-2.0.4.js" defer></script>
+<script type="module" src="js/app.js"></script>
+</head>
+<body>
+
+<!-- ============================================================ HOME -->
+<main id="view-home" class="view home">
+  <header class="brand">
+    <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+      <rect x="2" y="2" width="60" height="60" rx="16" fill="var(--panel-2)"/>
+      <rect x="12" y="19" width="17" height="26" rx="4" fill="none" stroke="var(--accent)" stroke-width="3"/>
+      <rect x="35" y="19" width="17" height="26" rx="4" fill="none" stroke="var(--cool)" stroke-width="3"/>
+      <circle cx="20.5" cy="26" r="3" fill="var(--accent)"/>
+      <circle cx="43.5" cy="26" r="3" fill="var(--cool)"/>
+    </svg>
+    <div class="brand-text">
+      <h1>BD Futsal Cam Pro</h1>
+      <p>Two iPhones on one mount. Both record the match, started together.</p>
+    </div>
+  </header>
+
+  <p id="env-warning" class="notice notice-warn" hidden></p>
+
+  <section class="roles" aria-label="Choose what this phone does">
+    <button class="role-card" id="pick-director" type="button">
+      <span class="role-top">
+        <span class="role-eyebrow">This phone is the</span>
+        <span class="cam-badge cam-right" data-role-cam="director">CAM 02 · RIGHT</span>
+      </span>
+      <span class="role-name">Director</span>
+      <span class="role-desc">Starts and stops both cameras, shows the other phone's view and tags goals and chances while it records.</span>
+      <span class="role-device" data-role-device="director">iPhone 17 Pro Max</span>
+    </button>
+    <button class="role-card" id="pick-camera" type="button">
+      <span class="role-top">
+        <span class="role-eyebrow">This phone is the</span>
+        <span class="cam-badge cam-left" data-role-cam="camera">CAM 01 · LEFT</span>
+      </span>
+      <span class="role-name">Camera</span>
+      <span class="role-desc">Joins the Director with a 5-letter code or by scanning its QR code, then records whenever the Director says.</span>
+      <span class="role-device" data-role-device="camera">iPhone 15 Pro Max</span>
+    </button>
+  </section>
+
+  <nav class="home-actions" aria-label="More">
+    <button type="button" class="tile" id="open-library">
+      <span class="tile-label">Recordings</span>
+      <span class="tile-value" id="lib-count">—</span>
+    </button>
+    <button type="button" class="tile" id="open-guide">
+      <span class="tile-label">Pre-match checklist</span>
+      <span class="tile-value" id="check-count">0 / 8</span>
+    </button>
+  </nav>
+
+  <figure class="court">
+    <svg viewBox="-3 -3 46 29" role="img" aria-labelledby="court-title">
+      <title id="court-title">Futsal court from above with the two-phone mount at halfway. The left camera covers the left half, the right camera the right half, overlapping in the middle.</title>
+      <defs>
+        <clipPath id="court-clip"><rect x="-2" y="-2" width="44" height="24"/></clipPath>
+      </defs>
+      <rect x="-2" y="-2" width="44" height="24" rx="1" class="court-runoff"/>
+      <rect x="0" y="0" width="40" height="20" class="court-floor"/>
+      <g clip-path="url(#court-clip)">
+        <polygon points="20,23 -8,22.8 26.96,-4.12" class="fov fov-left"/>
+        <polygon points="20,23 13.04,-4.12 48,22.8" class="fov fov-right"/>
+      </g>
+      <g class="court-lines">
+        <rect x="0" y="0" width="40" height="20"/>
+        <line x1="20" y1="0" x2="20" y2="20"/>
+        <circle cx="20" cy="10" r="3"/>
+        <path d="M0 2.5 A6 6 0 0 1 6 8.5 L6 11.5 A6 6 0 0 1 0 17.5"/>
+        <path d="M40 2.5 A6 6 0 0 0 34 8.5 L34 11.5 A6 6 0 0 0 40 17.5"/>
+        <rect x="-1" y="8.5" width="1" height="3"/>
+        <rect x="40" y="8.5" width="1" height="3"/>
+      </g>
+      <g class="court-marks">
+        <circle cx="20" cy="10" r="0.25"/><circle cx="6" cy="10" r="0.2"/><circle cx="34" cy="10" r="0.2"/>
+        <circle cx="10" cy="10" r="0.2"/><circle cx="30" cy="10" r="0.2"/>
+      </g>
+      <g class="mount">
+        <rect x="18.1" y="22.1" width="1.6" height="1.1" rx="0.25" class="phone-left"/>
+        <rect x="20.3" y="22.1" width="1.6" height="1.1" rx="0.25" class="phone-right"/>
+      </g>
+      <text x="9" y="15.4" class="court-label label-left">CAM 01 · LEFT</text>
+      <text x="31" y="15.4" class="court-label label-right">CAM 02 · RIGHT</text>
+      <text x="20" y="25.6" class="court-note">mount · halfway line</text>
+    </svg>
+    <figcaption>40 × 20 m court. Both 0.5× ultra-wide lenses on the halfway mount, angled about 25° apart so their views overlap through the centre circle.</figcaption>
+  </figure>
+
+  <p class="install-hint" id="install-hint" hidden>For full screen: tap <strong>Share</strong> then <strong>Add to Home Screen</strong>, and open BD Cam from there.</p>
+  <p class="foot">v<span id="app-version">1.0.0</span> · Video stays on this phone until you save or AirDrop it.</p>
+</main>
+
+<!-- ======================================================= RECORDING -->
+<main id="view-rec" class="view rec" hidden>
+  <div class="stage">
+    <video id="preview" playsinline muted autoplay></video>
+    <div class="stage-msg" id="stage-msg">Starting camera…</div>
+    <div class="rotate-hint" id="rotate-hint" hidden>
+      <strong>Turn the phone sideways to record</strong>
+      <span id="rotate-detail">The picture is still upright. Open Control Centre and turn off Portrait Orientation Lock, then rotate the phone.</span>
+    </div>
+    <div class="countdown" id="countdown" hidden></div>
+    <div class="flash" id="flash"></div>
+  </div>
+
+  <div class="hud-top">
+    <div class="chips">
+      <span class="chip chip-cam" id="chip-cam">CAM 02 · RIGHT</span>
+      <span class="chip" id="chip-format">—</span>
+    </div>
+    <div class="chips chips-end">
+      <span class="chip chip-link" id="chip-link"><i class="dot"></i><span>Not paired</span></span>
+      <span class="chip" id="chip-storage">—</span>
+      <span class="chip chip-warn" id="chip-awake" hidden>Screen may lock</span>
+    </div>
+  </div>
+
+  <section class="partner" id="partner" aria-live="polite"></section>
+
+  <aside class="rail">
+    <div class="timer" id="timer">00:00:00</div>
+    <div class="rec-state" id="rec-state">Ready</div>
+    <button type="button" class="rec-btn" id="rec-btn" aria-label="Start recording"><span class="rec-core"></span></button>
+    <div class="rec-btn-label" id="rec-btn-label">Start both</div>
+    <div class="tags" id="tags" hidden>
+      <button type="button" class="tag tag-us" data-tag="BD goal">BD goal</button>
+      <button type="button" class="tag tag-them" data-tag="Opp goal">Opp goal</button>
+      <button type="button" class="tag" data-tag="Shot">Shot</button>
+      <button type="button" class="tag" data-tag="Chance">Chance</button>
+      <button type="button" class="tag" data-tag="Mark">Mark</button>
+    </div>
+    <div class="tools">
+      <button type="button" class="tool" id="tool-pair">Pair</button>
+      <button type="button" class="tool" id="tool-settings">Settings</button>
+      <button type="button" class="tool" id="tool-dim">Dim</button>
+      <button type="button" class="tool" id="tool-exit">Exit</button>
+    </div>
+  </aside>
+
+  <div class="dim" id="dim" hidden>
+    <div class="dim-inner">
+      <span class="dim-rec" id="dim-rec"><i></i><span id="dim-time">00:00:00</span></span>
+      <span class="dim-sub" id="dim-sub">Screen dimmed to save battery. Tap to wake.</span>
+    </div>
+  </div>
+</main>
+
+<!-- ========================================================= LIBRARY -->
+<main id="view-library" class="view library" hidden>
+  <header class="page-head">
+    <button type="button" class="back" id="lib-back">Back</button>
+    <h2>Recordings</h2>
+    <span class="page-meta" id="lib-storage"></span>
+  </header>
+  <p class="notice">Each phone keeps its own recordings. To get both halves of the court in one place, AirDrop the CAM 01 file to the Director phone or send both to your computer.</p>
+  <ul class="take-list" id="take-list"></ul>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<!-- ========================================================== SHEETS -->
+<dialog class="sheet" id="sheet-pair" aria-labelledby="pair-title">
+  <div class="sheet-head"><h3 id="pair-title">Pair the Camera phone</h3><button type="button" class="close" data-close>Done</button></div>
+  <div class="pair-body">
+    <div class="qr" id="pair-qr" aria-label="QR code to join"></div>
+    <div class="pair-text">
+      <p class="pair-step">On the <span id="pair-other">other iPhone</span>, point the Camera app at this QR code and open the link. Or open BD Futsal Cam Pro there, choose <strong>Camera</strong> and type:</p>
+      <div class="code" id="pair-code">·····</div>
+      <p class="pair-status" id="pair-status">Connecting…</p>
+      <div class="row">
+        <button type="button" class="btn" id="pair-copy">Share link</button>
+        <button type="button" class="btn btn-quiet" id="pair-new">New code</button>
+      </div>
+      <p class="fine">Both phones need internet only to find each other: the same Wi-Fi, or the Camera phone joined to this phone's Personal Hotspot. Video never leaves the phones.</p>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="sheet" id="sheet-join" aria-labelledby="join-title">
+  <div class="sheet-head"><h3 id="join-title">Join the Director</h3><button type="button" class="close" data-close>Cancel</button></div>
+  <form id="join-form" class="join-form">
+    <label for="join-code">Code shown on the Director phone</label>
+    <input id="join-code" name="code" inputmode="text" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="8" placeholder="e.g. K7MQ3" required>
+    <button type="submit" class="btn btn-primary">Join</button>
+    <p class="fine">Quicker: scan the Director's QR code with this iPhone's Camera app.</p>
+  </form>
+</dialog>
+
+<dialog class="sheet" id="sheet-settings" aria-labelledby="settings-title">
+  <div class="sheet-head"><h3 id="settings-title">Settings</h3><button type="button" class="close" data-close>Done</button></div>
+  <form class="settings" id="settings-form">
+    <div class="field">
+      <label for="set-match">Match name</label>
+      <input id="set-match" maxlength="60" placeholder="e.g. BD vs City Uni — H1" autocomplete="off">
+      <span class="hint" id="hint-match">Used in file names. The Director sends it to the Camera.</span>
+    </div>
+    <div class="field">
+      <label for="set-name">This phone</label>
+      <input id="set-name" maxlength="40" autocomplete="off">
+    </div>
+    <fieldset class="field">
+      <legend>Records which half</legend>
+      <div class="seg" role="radiogroup">
+        <label><input type="radio" name="side" value="left" id="set-side-left"><span>CAM 01 · Left</span></label>
+        <label><input type="radio" name="side" value="right" id="set-side-right"><span>CAM 02 · Right</span></label>
+      </div>
+    </fieldset>
+    <fieldset class="field">
+      <legend>Quality</legend>
+      <div class="seg" role="radiogroup">
+        <label><input type="radio" name="quality" value="4k" id="set-q-4k"><span>4K</span></label>
+        <label><input type="radio" name="quality" value="1080p" id="set-q-1080"><span>1080p</span></label>
+        <label><input type="radio" name="quality" value="720p" id="set-q-720"><span>720p</span></label>
+      </div>
+      <span class="hint" id="hint-quality">4K uses about 11 GB per hour on each phone.</span>
+    </fieldset>
+    <div class="field">
+      <label for="set-lens">Lens</label>
+      <select id="set-lens"></select>
+    </div>
+    <label class="check field" id="row-beep">
+      <input type="checkbox" id="set-beep">
+      <span><strong>Sync beep</strong><br><span class="hint">Two short beeps 2 seconds after starting. Both phones hear them, which lines the videos up exactly when you stitch them later.</span></span>
+    </label>
+    <div class="field" id="row-code">
+      <span class="label">Pairing code</span>
+      <div class="row"><span class="code code-sm" id="set-code">·····</span><button type="button" class="btn btn-quiet" id="set-new-code">New code</button></div>
+    </div>
+    <div class="field">
+      <span class="label">Storage</span>
+      <span class="hint" id="set-storage">—</span>
+    </div>
+    <p class="hint" id="set-locked" hidden>Stop recording to change quality, lens or side.</p>
+  </form>
+</dialog>
+
+<dialog class="sheet" id="sheet-guide" aria-labelledby="guide-title">
+  <div class="sheet-head"><h3 id="guide-title">Pre-match checklist</h3><button type="button" class="close" data-close>Done</button></div>
+  <ul class="checklist" id="checklist"></ul>
+</dialog>
+
+<dialog class="sheet sheet-wide" id="sheet-take" aria-labelledby="take-title">
+  <div class="sheet-head"><h3 id="take-title">Recording</h3><button type="button" class="close" data-close>Close</button></div>
+  <div class="take-body">
+    <video id="take-video" controls playsinline preload="metadata"></video>
+    <dl class="take-meta" id="take-meta"></dl>
+    <div class="row wrap">
+      <button type="button" class="btn btn-primary" id="take-share">Save to Photos / AirDrop</button>
+      <button type="button" class="btn" id="take-download">Download to Files</button>
+      <button type="button" class="btn" id="take-tags" hidden>Export tags (.csv)</button>
+      <button type="button" class="btn btn-danger" id="take-delete">Delete</button>
+    </div>
+    <p class="fine" id="take-note"></p>
+    <ol class="tag-list" id="take-taglist"></ol>
+  </div>
+</dialog>
+
+</body>
+</html>
